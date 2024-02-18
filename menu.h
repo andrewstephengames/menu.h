@@ -3,6 +3,7 @@
 
 #include <raylib.h>
 #include <stddef.h>
+#include <stdio.h>
 #ifndef __cplusplus
 #include <stdbool.h>
 #endif // __cplusplus
@@ -17,9 +18,10 @@ typedef struct {
 } Element;
 
 Vector2 rec_to_v (Rectangle rec);
-void mouse_on_element (Element *e);
-Element *draw_button (Element *e, bool texture);
+void mouse_on_element (Element *e, void (*l_func) (void), void (*r_func) (void));
 void center_element (Element *e, Vector2 canvas);
+void draw_button (Element *e, bool texture, bool center, Vector2 canvas, 
+                  void (*l_func) (void), void (*r_func) (void));
 void draw_label (Element *e, Vector2 canvas, bool texture);
 
 #endif // MENU_H_
