@@ -13,14 +13,13 @@ typedef struct {
      size_t label_size;
      Color bg;
      Color fg;
-     char *texture_file_name;
      Texture2D texture;
 } Element;
 
 Vector2 rec_to_v (Rectangle rec);
-void mouse_on_element (Element *e, bool can_highlight);
+void mouse_on_element (Element *e);
 Element *draw_button (Element *e, bool texture);
 void center_element (Element *e, Vector2 canvas);
-Element *draw_label (Element *e, Vector2 canvas, bool center);
+void draw_label (Element *e, Vector2 canvas, bool texture);
 
 #endif // MENU_H_

@@ -4,10 +4,9 @@ Vector2 rec_to_v (Rectangle rec) {
      return (Vector2) { rec.x, rec.y };
 }
 
-void mouse_on_element (Element *e, bool can_highlight) {
+void mouse_on_element (Element *e) {
      Vector2 mouse = GetMousePosition();
-     e->texture = LoadTexture(e->texture_file_name);
-     if (CheckCollisionPointRec (mouse, e->box) && can_highlight) {
+     if (CheckCollisionPointRec (mouse, e->box)) {
           e->bg.a = 0x80;
      } else {
           e->bg.a = 0xFF;
@@ -15,10 +14,9 @@ void mouse_on_element (Element *e, bool can_highlight) {
 }
 
 Element *draw_button (Element *e, bool texture) {
-     mouse_on_element (e, true);
+     mouse_on_element (e);
      if (texture) {
-          Vector2 pos = rec_to_v (e->box);
-          DrawTextureRec (e->texture, e->box, pos, e->bg);
+          DrawTextureRec (e->texture, e->box, rec_to_v(e->box), e->bg);
      } else {
           DrawRectangleRec (e->box, e->bg);
      }
@@ -32,15 +30,17 @@ void center_element (Element *e, Vector2 canvas) {
      e->box.y = y;
 }
 
-//TODO: Add support for textures as rect backgrounds
-Element *draw_label (Element *e, Vector2 canvas, bool center) {
-     if (center) {
-          center_element (e, canvas);
-     }
+void draw_label (Element *e, Vector2 canvas, bool texture) {
+     center_element (e, canvas);
      e->box.width = MeasureText(e->label, e->label_size);
-     DrawRectangleRec (e->box, e->bg);
+     e->box.height = e->label_size;
+     if (texture) {
+          DrawTextureRec (e->texture, e->box, rec_to_v (e->box), e->bg);
+     } else {
+          DrawRectangleRec (e->box, e->bg);
+     }
      DrawText (e->label, e->box.x, e->box.y, e->label_size, e->fg);
-     return e;
+     mouse_on_element (e);
 }
 
 //Element *draw_input (Element *e, 
