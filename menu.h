@@ -9,11 +9,13 @@
 #ifndef __cplusplus
 #include <stdbool.h>
 #endif // __cplusplus
+#define MAX_INPUT_SIZE 1024
 
 typedef struct {
      Rectangle box;
-     char *label;
-     size_t label_size;
+     char label[1024];
+     int label_len;
+     size_t font_size;
      Color bg;
      Color fg;
      Texture2D texture;
@@ -24,7 +26,7 @@ void center_element (Element *e, Vector2 canvas);
 void mouse_on_element (Element *e, void (*l_func) (void), void (*r_func) (void));
 void draw_button (Element *e, bool texture, bool center, Vector2 canvas, 
                   void (*l_func) (void), void (*r_func) (void));
-void draw_label (Element *e, Vector2 canvas, bool texture);
-void draw_input (Element *e, Vector2 canvas, bool texture);
+void draw_label (Element *e, bool texture, bool center, Vector2 canvas);
+void draw_input (Element *e, bool texture, bool center, Vector2 canvas);
 
 #endif // MENU_H_
