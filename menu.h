@@ -13,7 +13,7 @@
 
 typedef struct {
      Rectangle box;
-     char label[1024];
+     char label[MAX_INPUT_SIZE];
      int label_len;
      size_t font_size;
      Color bg;
