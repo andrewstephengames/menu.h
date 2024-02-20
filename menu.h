@@ -28,6 +28,7 @@ void draw_button (Element *e, bool texture, bool center, Vector2 canvas,
                   void (*l_func) (void), void (*r_func) (void));
 void draw_label (Element *e, bool texture, bool center, Vector2 canvas);
 void draw_input (Element *e, bool texture, bool center, Vector2 canvas);
+void draw_background (Vector2 canvas, float alpha, Texture2D texture);
 
 Vector2 rec_to_v (Rectangle rec) {
      return (Vector2) { rec.x, rec.y };
@@ -121,6 +122,19 @@ void draw_input(Element *e, bool texture, bool center, Vector2 canvas) {
      } else {
           SetMouseCursor(MOUSE_CURSOR_DEFAULT);
      }
+}
+
+void draw_background (Vector2 canvas, float alpha, Texture2D texture) {
+     Color c = WHITE;
+     c.a = alpha;
+     Rectangle rect = {
+          .width = canvas.x,
+          .height = canvas.y,
+     };
+     if (texture.id > 0) {
+          SetShapesTexture (texture, rect);
+     }
+     DrawRectangle (0, 0, canvas.x, canvas.y, c);
 }
 
 #endif // MENU_H_
