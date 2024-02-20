@@ -5,8 +5,8 @@ Vector2 rec_to_v (Rectangle rec) {
 }
 
 void center_element (Element *e, Vector2 canvas) {
-     float x = canvas.x/2-MeasureText(e->label, e->label_size)/2;
-     float y = canvas.y/2-e->label_size/2;
+     float x = canvas.x/2-MeasureText(e->label, e->font_size)/2;
+     float y = canvas.y/2-e->font_size/2;
      e->box.x = x;
      e->box.y = y;
 }
@@ -14,7 +14,7 @@ void center_element (Element *e, Vector2 canvas) {
 void mouse_on_element (Element *e, void (*l_func) (void), void (*r_func) (void)) {
      Vector2 mouse = GetMousePosition();
      if (CheckCollisionPointRec (mouse, e->box)) {
-          e->bg.a = 127;
+          e->bg.a = 255;
           if (IsMouseButtonPressed (MOUSE_BUTTON_LEFT) && l_func != NULL) {
                (*l_func)();
           }
@@ -22,7 +22,7 @@ void mouse_on_element (Element *e, void (*l_func) (void), void (*r_func) (void))
                (*r_func)();
           }
      } else {
-          e->bg.a = 255;
+          e->bg.a = 127;
      }
 }
 
@@ -31,70 +31,65 @@ void draw_button (Element *e, bool texture, bool center, Vector2 canvas,
      if (center) {
           center_element (e, canvas);
      }
-     e->box.width = MeasureText(e->label, e->label_size);
-     e->box.height = e->label_size;
+     e->box.width = MeasureText(e->label, e->font_size);
+     e->box.height = e->font_size;
      if (texture) {
           DrawTextureRec (e->texture, e->box, rec_to_v(e->box), e->bg);
      } else {
           DrawRectangleRec (e->box, e->bg);
      }
-     DrawText (e->label, e->box.x, e->box.y, e->label_size, e->fg);
+     DrawText (e->label, e->box.x, e->box.y, e->font_size, e->fg);
      mouse_on_element (e, l_func, r_func);
 }
 
-void draw_label (Element *e, Vector2 canvas, bool texture) {
-     center_element (e, canvas);
-     e->box.width = MeasureText(e->label, e->label_size);
-     e->box.height = e->label_size;
+void draw_label (Element *e, bool texture, bool center, Vector2 canvas) {
+     if (center) {
+          center_element (e, canvas);
+     }
+     e->box.width = MeasureText(e->label, e->font_size);
+     e->box.height = e->font_size;
      if (texture) {
           DrawTextureRec (e->texture, e->box, rec_to_v (e->box), e->bg);
      } else {
           DrawRectangleRec (e->box, e->bg);
      }
-     DrawText (e->label, e->box.x, e->box.y, e->label_size, e->fg);
+     DrawText (e->label, e->box.x, e->box.y, e->font_size, e->fg);
 }
 
-// FIXME: Characters not getting drawn
-void draw_input (Element *e, Vector2 canvas, bool texture) {
-     bool is_selected = false;
-     center_element (e, canvas);
-     e->box.width = MeasureText(e->label, e->label_size);
-     e->box.height = e->label_size;
+void draw_input(Element *e, bool texture, bool center, Vector2 canvas) {
+     Vector2 mouse = GetMousePosition();
+     bool is_mouse_on_box = CheckCollisionPointRec (mouse, e->box);
+     Vector2 w = {
+          .x = canvas.x/2 - e->box.width/2,
+          .y = canvas.y/2 - e->box.height/2,
+     };
+     if (center) {
+          e->box.x = w.x;
+          e->box.y = w.y;
+     }
      if (texture) {
-          DrawTextureRec (e->texture, e->box, rec_to_v (e->box), e->bg);
+          DrawTextureRec (e->texture, e->box, rec_to_v(e->box), e->fg);
      } else {
-          DrawRectangleRec (e->box, e->bg);
+          DrawRectangleRec(e->box, e->bg);
      }
-     if (strlen(e->label) == 0) {
-          strcpy (e->label, "Type..");
+     if (e->label_len == 0) {
+          DrawText("Type..", e->box.x + 10, e->box.y + e->box.height / 2 - 10, e->font_size, e->fg);
+     } else {
+          DrawText(e->label, e->box.x + 10, e->box.y + e->box.height / 2 - 10, e->font_size, e->fg);
      }
-     DrawText (e->label, e->box.x, e->box.y, e->label_size, e->fg);
-     if (CheckCollisionPointRec (GetMousePosition(), e->box)) {
-          SetMouseCursor (MOUSE_CURSOR_IBEAM);
-          e->fg.a = 255;
-          if (IsMouseButtonPressed (MOUSE_BUTTON_LEFT)) {
-               is_selected = true;
+     int key = GetCharPressed();
+     if (is_mouse_on_box) {
+          SetMouseCursor(MOUSE_CURSOR_IBEAM);
+          DrawText("|", e->box.x + 10 + MeasureText(e->label, e->font_size), e->box.y + e->box.height / 2 - 10, e->font_size, e->fg);
+          if (key != 0) {
+               if (e->font_size < MAX_INPUT_SIZE - 1) {
+                    e->label[e->label_len++] = (char)key;
+                    e->label[e->label_len] = '\0';
+               }
+          } else if (IsKeyPressed(KEY_BACKSPACE) && e->label_len > 0) {
+               e->label[--e->label_len] = '\0';
           }
      } else {
-          SetMouseCursor (MOUSE_CURSOR_DEFAULT);
-          e->fg.a = 50;
-          if (IsMouseButtonPressed (MOUSE_BUTTON_LEFT)) {
-               is_selected = false;
-          }
-     }
-     if (is_selected) {
-          int key = GetCharPressed();
-          if (key >= 32 && key <= 125) {
-               size_t len = strlen(e->label);
-               if (len < sizeof (e->label)-1) {
-                    e->label[len] = (char) key;
-                    e->label[++len] = '\0';
-               }
-          } else if (key == KEY_BACKSPACE) {
-               size_t len = strlen(e->label);
-               if (len > 0) {
-                    e->label[len-1] = '\0';
-               }
-          }
+          SetMouseCursor(MOUSE_CURSOR_DEFAULT);
      }
 }
